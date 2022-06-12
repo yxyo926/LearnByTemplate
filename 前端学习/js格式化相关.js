@@ -1,4 +1,4 @@
-//  ------------利用数组格式化----------
+ //  ------------利用数组格式化----------
 var str="border-bottom-color";
 function tf(){
   var arr=str.split("-");
