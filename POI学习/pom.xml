@@ -40,6 +40,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>1.15.1</version>
+		</dependency>
 		<!--        封装导入导出规则引用包-->
 		<!-- 文件上传 -->
 		<dependency>
