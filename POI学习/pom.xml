@@ -41,6 +41,25 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-features-validation</artifactId>
+			<version>3.6.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-core</artifactId>
+			<version>3.6.8</version> <!-- 或更高兼容版本 -->
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>6.2.5.Final</version> <!-- 适配 Java 8+ 的 JSR 380 实现 -->
+		</dependency>
+
+
+		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
 			<version>1.15.1</version>
