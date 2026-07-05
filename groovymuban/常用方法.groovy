@@ -116,3 +116,92 @@ class CollectionDiffProcessor<T, R> {
                 }
     }
 }
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class CountryDataProcessor {
+
+    /**
+     * 处理国家数据：比对已有数据，组装需要插入的新数据
+     *
+     * @param existArray   已存在的对象数组 (JSONArray)
+     * @param idsStr       以逗号分割的ID字符串
+     * @param country      国家模板对象 (JSONObject)，用于组装新数据
+     * @return 需要插入的数据集合 (JSONArray)
+     */
+    public static JSONArray buildInsertList(JSONArray existArray, String idsStr, JSONObject country) {
+        JSONArray insertList = new JSONArray();
+
+        // 1. 对字符串进行非空校验，如果为空则直接返回空集合
+        if (StringUtils.isBlank(idsStr)) {
+            return insertList;
+        }
+
+        // 2. 提取已有数组中的 countryId 放入 Set 中，提高比对效率 (O(1) 查找)
+        Set<String> existIdSet = new HashSet<>();
+        if (existArray != null && !existArray.isEmpty()) {
+            for (int i = 0; i < existArray.size(); i++) {
+                JSONObject obj = existArray.getJSONObject(i);
+                if (obj != null && obj.containsKey("countryId")) {
+                    // 统一转为 String 避免类型不一致导致的比对失败
+                    existIdSet.add(String.valueOf(obj.get("countryId")));
+                }
+            }
+        }
+
+        // 3. 拆分字符串并处理
+        String[] idArr = idsStr.split(",");
+        for (String id : idArr) {
+            String trimId = id.trim(); // 去除可能存在的前后空格
+            if (StringUtils.isBlank(trimId)) {
+                continue; // 跳过空串
+            }
+
+            // 4. 核心比对：如果不存在于已有集合中，则组装新对象
+            if (!existIdSet.contains(trimId)) {
+                JSONObject newItem = new JSONObject();
+
+                // 如果 country 模板对象不为空，先复制其属性作为基础数据
+                if (country != null) {
+                    newItem.putAll(country);
+                }
+
+                // 覆盖/设置当前比对出的 countryId
+                newItem.put("countryId", trimId);
+
+                insertList.add(newItem);
+            }
+        }
+
+        return insertList;
+    }
+
+    // ================= 测试用例 =================
+    public static void main(String[] args) {
+        // 1. 准备已有数据
+        JSONArray existArray = new JSONArray();
+        existArray.add(new JSONObject().fluentPut("countryId", "CN"));
+        existArray.add(new JSONObject().fluentPut("countryId", "US"));
+
+        // 2. 准备逗号分割的字符串 (包含已存在的 CN，不存在的 JP、KR，以及多余空格)
+        String idsStr = "CN, JP , KR, US";
+
+        // 3. 准备国家模板对象
+        JSONObject countryTemplate = new JSONObject();
+        countryTemplate.put("status", 1);
+        countryTemplate.put("createBy", "system");
+
+        // 4. 执行处理
+        JSONArray result = buildInsertList(existArray, idsStr, countryTemplate);
+
+        // 5. 输出结果
+        System.out.println("需要插入的数据: " + result.toJSONString());
+    }
+}
